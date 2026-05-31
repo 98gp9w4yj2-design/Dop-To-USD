@@ -1,0 +1,408 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Cambio RD">
+<title>Cambio RD</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@300;400;500&family=Syne:wght@400;700;800&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0d0d0d;
+    --surface: #161616;
+    --border: #2a2a2a;
+    --accent: #c8f55a;
+    --accent-dim: rgba(200, 245, 90, 0.12);
+    --text: #f0f0f0;
+    --muted: #6b6b6b;
+    --red: #ff5c5c;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+
+  html, body {
+    height: 100%;
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'Syne', sans-serif;
+    overscroll-behavior: none;
+  }
+
+  .app {
+    min-height: 100dvh;
+    display: flex;
+    flex-direction: column;
+    padding: env(safe-area-inset-top, 20px) 24px env(safe-area-inset-bottom, 24px);
+    max-width: 420px;
+    margin: 0 auto;
+  }
+
+  .header {
+    padding-top: 20px;
+    padding-bottom: 32px;
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+  }
+
+  .header h1 {
+    font-size: 13px;
+    font-weight: 700;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: var(--muted);
+  }
+
+  .rate-badge {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: 2px;
+  }
+
+  .rate-badge .rate-val {
+    font-family: 'DM Mono', monospace;
+    font-size: 12px;
+    color: var(--accent);
+    font-weight: 500;
+  }
+
+  .rate-badge .rate-label {
+    font-size: 10px;
+    color: var(--muted);
+    letter-spacing: 0.1em;
+  }
+
+  .rate-badge.loading .rate-val {
+    color: var(--muted);
+  }
+
+  .rate-badge.error .rate-val {
+    color: var(--red);
+  }
+
+  /* Input section */
+  .input-section {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    gap: 0;
+  }
+
+  .label {
+    font-size: 11px;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-bottom: 10px;
+  }
+
+  .input-wrap {
+    display: flex;
+    align-items: center;
+    background: var(--surface);
+    border: 1.5px solid var(--border);
+    border-radius: 16px;
+    padding: 20px 24px;
+    gap: 10px;
+    transition: border-color 0.2s;
+  }
+
+  .input-wrap:focus-within {
+    border-color: var(--accent);
+  }
+
+  .currency-tag {
+    font-family: 'DM Mono', monospace;
+    font-size: 15px;
+    font-weight: 500;
+    color: var(--muted);
+    white-space: nowrap;
+    flex-shrink: 0;
+  }
+
+  input[type="number"] {
+    flex: 1;
+    background: transparent;
+    border: none;
+    outline: none;
+    font-family: 'DM Mono', monospace;
+    font-size: 32px;
+    font-weight: 400;
+    color: var(--text);
+    width: 100%;
+    text-align: right;
+    -moz-appearance: textfield;
+  }
+
+  input[type="number"]::-webkit-inner-spin-button,
+  input[type="number"]::-webkit-outer-spin-button { -webkit-appearance: none; }
+
+  input::placeholder { color: var(--border); }
+
+  /* Arrow divider */
+  .arrow-divider {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 20px 0;
+  }
+
+  .arrow-divider svg {
+    opacity: 0.3;
+  }
+
+  /* Result */
+  .result-wrap {
+    background: var(--accent-dim);
+    border: 1.5px solid var(--accent);
+    border-radius: 16px;
+    padding: 24px;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: 6px;
+    min-height: 90px;
+    justify-content: center;
+  }
+
+  .result-amount {
+    font-family: 'DM Mono', monospace;
+    font-size: 40px;
+    font-weight: 300;
+    color: var(--accent);
+    line-height: 1;
+    letter-spacing: -0.02em;
+    transition: opacity 0.2s;
+  }
+
+  .result-amount.empty {
+    opacity: 0.2;
+  }
+
+  .result-currency {
+    font-family: 'DM Mono', monospace;
+    font-size: 14px;
+    color: var(--accent);
+    opacity: 0.6;
+    font-weight: 500;
+  }
+
+  /* Footer */
+  .footer {
+    padding-top: 32px;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  .refresh-btn {
+    width: 100%;
+    background: var(--surface);
+    border: 1.5px solid var(--border);
+    border-radius: 12px;
+    padding: 14px;
+    color: var(--muted);
+    font-family: 'Syne', sans-serif;
+    font-size: 13px;
+    font-weight: 700;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    cursor: pointer;
+    transition: all 0.2s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+  }
+
+  .refresh-btn:active {
+    background: var(--border);
+    transform: scale(0.98);
+  }
+
+  .source-note {
+    text-align: center;
+    font-size: 10px;
+    color: var(--muted);
+    letter-spacing: 0.08em;
+  }
+
+  .source-note a {
+    color: var(--muted);
+    text-decoration: underline;
+    text-underline-offset: 3px;
+  }
+
+  /* Spin animation */
+  @keyframes spin {
+    to { transform: rotate(360deg); }
+  }
+  .spinning { animation: spin 0.8s linear infinite; }
+
+  /* Pulse when updating */
+  @keyframes pulse {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.4; }
+  }
+  .pulsing { animation: pulse 1s ease-in-out infinite; }
+
+  /* Fade in result */
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(6px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+  .fade-up { animation: fadeUp 0.3s ease; }
+
+  .timestamp {
+    font-family: 'DM Mono', monospace;
+    font-size: 10px;
+    color: var(--muted);
+    text-align: center;
+    letter-spacing: 0.06em;
+    margin-top: 4px;
+  }
+</style>
+</head>
+<body>
+<div class="app">
+
+  <div class="header">
+    <h1>Cambio RD$</h1>
+    <div class="rate-badge loading" id="rateBadge">
+      <span class="rate-val" id="rateDisplay">—</span>
+      <span class="rate-label">RD$ por $1 USD</span>
+    </div>
+  </div>
+
+  <div class="input-section">
+    <div class="label">Pesos dominicanos</div>
+    <div class="input-wrap">
+      <span class="currency-tag">RD$</span>
+      <input
+        type="number"
+        id="dopInput"
+        inputmode="decimal"
+        placeholder="0"
+        autofocus
+      />
+    </div>
+
+    <div class="arrow-divider">
+      <svg width="20" height="24" viewBox="0 0 20 24" fill="none">
+        <line x1="10" y1="0" x2="10" y2="20" stroke="#f0f0f0" stroke-width="1.5"/>
+        <polyline points="4,14 10,20 16,14" stroke="#f0f0f0" stroke-width="1.5" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+      </svg>
+    </div>
+
+    <div class="label">Dólares americanos</div>
+    <div class="result-wrap">
+      <span class="result-amount empty" id="resultAmount">0.00</span>
+      <span class="result-currency">USD</span>
+    </div>
+  </div>
+
+  <div class="footer">
+    <button class="refresh-btn" id="refreshBtn" onclick="fetchRate()">
+      <svg id="refreshIcon" width="14" height="14" viewBox="0 0 14 14" fill="none">
+        <path d="M12.5 7A5.5 5.5 0 1 1 7 1.5c1.8 0 3.4.87 4.4 2.2" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+        <polyline points="11.5,1.5 11.5,3.8 9.2,3.8" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+      </svg>
+      Actualizar tasa
+    </button>
+    <div class="timestamp" id="timestamp"></div>
+    <div class="source-note">
+      Tasa: <a href="https://bancentral.gov.do" target="_blank">Banco Central RD</a> vía open.er-api.com
+    </div>
+  </div>
+
+</div>
+
+<script>
+  let currentRate = null;
+
+  const dopInput = document.getElementById('dopInput');
+  const resultAmount = document.getElementById('resultAmount');
+  const rateDisplay = document.getElementById('rateDisplay');
+  const rateBadge = document.getElementById('rateBadge');
+  const refreshIcon = document.getElementById('refreshIcon');
+  const timestamp = document.getElementById('timestamp');
+
+  dopInput.addEventListener('input', convert);
+
+  function convert() {
+    const dop = parseFloat(dopInput.value);
+    if (!currentRate || isNaN(dop) || dop === 0) {
+      resultAmount.textContent = '0.00';
+      resultAmount.classList.add('empty');
+      return;
+    }
+    const usd = dop / currentRate;
+    resultAmount.textContent = usd.toLocaleString('en-US', {
+      minimumFractionDigits: 2,
+      maximumFractionDigits: 2
+    });
+    resultAmount.classList.remove('empty');
+    resultAmount.classList.remove('fade-up');
+    void resultAmount.offsetWidth;
+    resultAmount.classList.add('fade-up');
+  }
+
+  async function fetchRate() {
+    rateBadge.className = 'rate-badge loading';
+    rateDisplay.textContent = '...';
+    rateDisplay.classList.add('pulsing');
+    refreshIcon.classList.add('spinning');
+
+    try {
+      // Primary: open.er-api.com (free, no key, CORS ok)
+      const res = await fetch('https://open.er-api.com/v6/latest/USD', {
+        cache: 'no-store'
+      });
+      const data = await res.json();
+
+      if (data && data.rates && data.rates.DOP) {
+        currentRate = data.rates.DOP;
+        rateDisplay.textContent = currentRate.toFixed(4);
+        rateBadge.className = 'rate-badge';
+        const now = new Date();
+        timestamp.textContent = `Última actualización: ${now.toLocaleTimeString('es-DO', { hour: '2-digit', minute: '2-digit' })}`;
+        convert();
+      } else {
+        throw new Error('No DOP rate in response');
+      }
+
+    } catch (err) {
+      // Fallback: exchangerate-api.com public endpoint
+      try {
+        const res2 = await fetch('https://api.exchangerate-api.com/v4/latest/USD');
+        const data2 = await res2.json();
+        if (data2 && data2.rates && data2.rates.DOP) {
+          currentRate = data2.rates.DOP;
+          rateDisplay.textContent = currentRate.toFixed(4);
+          rateBadge.className = 'rate-badge';
+          const now = new Date();
+          timestamp.textContent = `Última actualización: ${now.toLocaleTimeString('es-DO', { hour: '2-digit', minute: '2-digit' })}`;
+          convert();
+        } else {
+          throw new Error('Fallback also failed');
+        }
+      } catch (err2) {
+        rateDisplay.textContent = 'Error';
+        rateBadge.className = 'rate-badge error';
+        timestamp.textContent = 'No se pudo obtener la tasa';
+      }
+    } finally {
+      rateDisplay.classList.remove('pulsing');
+      refreshIcon.classList.remove('spinning');
+    }
+  }
+
+  // Load on start
+  fetchRate();
+</script>
+</body>
+</html>

@@ -18,6 +18,10 @@
     --text: #f0f0f0;
     --muted: #6b6b6b;
     --red: #ff5c5c;
+    --blue: #5ab4f5;
+    --blue-dim: rgba(90, 180, 245, 0.12);
+    --orange: #f5a55a;
+    --orange-dim: rgba(245, 165, 90, 0.12);
   }
 
   * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
@@ -39,9 +43,10 @@
     margin: 0 auto;
   }
 
+  /* Header */
   .header {
     padding-top: 20px;
-    padding-bottom: 32px;
+    padding-bottom: 24px;
     display: flex;
     justify-content: space-between;
     align-items: flex-start;
@@ -55,42 +60,58 @@
     color: var(--muted);
   }
 
-  .rate-badge {
+  .rate-badge { display: flex; flex-direction: column; align-items: flex-end; gap: 2px; }
+  .rate-badge .rate-val { font-family: 'DM Mono', monospace; font-size: 12px; color: var(--accent); font-weight: 500; }
+  .rate-badge .rate-label { font-size: 10px; color: var(--muted); letter-spacing: 0.1em; }
+  .rate-badge.loading .rate-val { color: var(--muted); }
+  .rate-badge.error .rate-val { color: var(--red); }
+
+  /* Tab bar */
+  .tabs {
     display: flex;
-    flex-direction: column;
-    align-items: flex-end;
-    gap: 2px;
+    gap: 8px;
+    margin-bottom: 28px;
   }
 
-  .rate-badge .rate-val {
-    font-family: 'DM Mono', monospace;
-    font-size: 12px;
-    color: var(--accent);
-    font-weight: 500;
-  }
-
-  .rate-badge .rate-label {
-    font-size: 10px;
-    color: var(--muted);
-    letter-spacing: 0.1em;
-  }
-
-  .rate-badge.loading .rate-val {
-    color: var(--muted);
-  }
-
-  .rate-badge.error .rate-val {
-    color: var(--red);
-  }
-
-  /* Input section */
-  .input-section {
+  .tab {
     flex: 1;
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    gap: 0;
+    background: var(--surface);
+    border: 1.5px solid var(--border);
+    border-radius: 10px;
+    padding: 10px 4px;
+    color: var(--muted);
+    font-family: 'Syne', sans-serif;
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    cursor: pointer;
+    transition: all 0.18s;
+    text-align: center;
+    line-height: 1.3;
   }
+
+  .tab:active { transform: scale(0.96); }
+
+  .tab.active-currency {
+    background: var(--accent-dim);
+    border-color: var(--accent);
+    color: var(--accent);
+  }
+  .tab.active-temp {
+    background: var(--orange-dim);
+    border-color: var(--orange);
+    color: var(--orange);
+  }
+  .tab.active-dist {
+    background: var(--blue-dim);
+    border-color: var(--blue);
+    color: var(--blue);
+  }
+
+  /* Panels */
+  .panel { display: none; flex: 1; flex-direction: column; justify-content: center; }
+  .panel.active { display: flex; }
 
   .label {
     font-size: 11px;
@@ -111,9 +132,9 @@
     transition: border-color 0.2s;
   }
 
-  .input-wrap:focus-within {
-    border-color: var(--accent);
-  }
+  .input-wrap:focus-within { border-color: var(--accent); }
+  .input-wrap.temp:focus-within { border-color: var(--orange); }
+  .input-wrap.dist:focus-within { border-color: var(--blue); }
 
   .currency-tag {
     font-family: 'DM Mono', monospace;
@@ -140,25 +161,38 @@
 
   input[type="number"]::-webkit-inner-spin-button,
   input[type="number"]::-webkit-outer-spin-button { -webkit-appearance: none; }
-
   input::placeholder { color: var(--border); }
 
-  /* Arrow divider */
-  .arrow-divider {
+  /* Swap / divider row */
+  .mid-row {
     display: flex;
     justify-content: center;
     align-items: center;
-    padding: 20px 0;
+    padding: 16px 0;
+    position: relative;
   }
 
-  .arrow-divider svg {
-    opacity: 0.3;
+  .swap-btn {
+    background: var(--surface);
+    border: 1.5px solid var(--border);
+    border-radius: 50%;
+    width: 38px;
+    height: 38px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all 0.2s;
+    color: var(--muted);
   }
 
-  /* Result */
+  .swap-btn:active { transform: rotate(180deg) scale(0.9); }
+  .swap-btn.currency:hover { border-color: var(--accent); color: var(--accent); }
+  .swap-btn.temp:hover { border-color: var(--orange); color: var(--orange); }
+  .swap-btn.dist:hover { border-color: var(--blue); color: var(--blue); }
+
+  /* Result box */
   .result-wrap {
-    background: var(--accent-dim);
-    border: 1.5px solid var(--accent);
     border-radius: 16px;
     padding: 24px;
     display: flex;
@@ -169,31 +203,38 @@
     justify-content: center;
   }
 
+  .result-wrap.currency { background: var(--accent-dim); border: 1.5px solid var(--accent); }
+  .result-wrap.temp     { background: var(--orange-dim); border: 1.5px solid var(--orange); }
+  .result-wrap.dist     { background: var(--blue-dim);   border: 1.5px solid var(--blue); }
+
   .result-amount {
     font-family: 'DM Mono', monospace;
     font-size: 40px;
     font-weight: 300;
-    color: var(--accent);
     line-height: 1;
     letter-spacing: -0.02em;
-    transition: opacity 0.2s;
   }
 
-  .result-amount.empty {
-    opacity: 0.2;
-  }
+  .result-wrap.currency .result-amount { color: var(--accent); }
+  .result-wrap.temp     .result-amount { color: var(--orange); }
+  .result-wrap.dist     .result-amount { color: var(--blue); }
+
+  .result-amount.empty { opacity: 0.2; }
 
   .result-currency {
     font-family: 'DM Mono', monospace;
     font-size: 14px;
-    color: var(--accent);
     opacity: 0.6;
     font-weight: 500;
   }
 
+  .result-wrap.currency .result-currency { color: var(--accent); }
+  .result-wrap.temp     .result-currency { color: var(--orange); }
+  .result-wrap.dist     .result-currency { color: var(--blue); }
+
   /* Footer */
   .footer {
-    padding-top: 32px;
+    padding-top: 24px;
     display: flex;
     flex-direction: column;
     gap: 8px;
@@ -219,92 +260,114 @@
     gap: 8px;
   }
 
-  .refresh-btn:active {
-    background: var(--border);
-    transform: scale(0.98);
-  }
+  .refresh-btn:active { background: var(--border); transform: scale(0.98); }
 
-  .source-note {
-    text-align: center;
-    font-size: 10px;
-    color: var(--muted);
-    letter-spacing: 0.08em;
-  }
+  .source-note { text-align: center; font-size: 10px; color: var(--muted); letter-spacing: 0.08em; }
+  .source-note a { color: var(--muted); text-decoration: underline; text-underline-offset: 3px; }
 
-  .source-note a {
-    color: var(--muted);
-    text-decoration: underline;
-    text-underline-offset: 3px;
-  }
+  .timestamp { font-family: 'DM Mono', monospace; font-size: 10px; color: var(--muted); text-align: center; letter-spacing: 0.06em; }
 
-  /* Spin animation */
-  @keyframes spin {
-    to { transform: rotate(360deg); }
-  }
+  @keyframes spin { to { transform: rotate(360deg); } }
   .spinning { animation: spin 0.8s linear infinite; }
 
-  /* Pulse when updating */
-  @keyframes pulse {
-    0%, 100% { opacity: 1; }
-    50% { opacity: 0.4; }
-  }
+  @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.4; } }
   .pulsing { animation: pulse 1s ease-in-out infinite; }
 
-  /* Fade in result */
-  @keyframes fadeUp {
-    from { opacity: 0; transform: translateY(6px); }
-    to   { opacity: 1; transform: translateY(0); }
-  }
+  @keyframes fadeUp { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: translateY(0); } }
   .fade-up { animation: fadeUp 0.3s ease; }
-
-  .timestamp {
-    font-family: 'DM Mono', monospace;
-    font-size: 10px;
-    color: var(--muted);
-    text-align: center;
-    letter-spacing: 0.06em;
-    margin-top: 4px;
-  }
 </style>
 </head>
 <body>
 <div class="app">
 
   <div class="header">
-    <h1>Cambio RD$</h1>
+    <h1>Cambio RD</h1>
     <div class="rate-badge loading" id="rateBadge">
       <span class="rate-val" id="rateDisplay">—</span>
-      <span class="rate-label">RD$ por $1 USD</span>
+      <span class="rate-label" id="rateLabel">RD$ por $1 USD</span>
     </div>
   </div>
 
-  <div class="input-section">
-    <div class="label">Pesos dominicanos</div>
+  <!-- Tab bar -->
+  <div class="tabs">
+    <button class="tab active-currency" id="tabCurrency" onclick="switchTab('currency')">RD$<br>USD</button>
+    <button class="tab" id="tabTemp" onclick="switchTab('temp')">°F<br>°C</button>
+    <button class="tab" id="tabDist" onclick="switchTab('dist')">km<br>mi</button>
+  </div>
+
+  <!-- CURRENCY PANEL -->
+  <div class="panel active" id="panelCurrency">
+    <div class="label" id="currencyFromLabel">Pesos dominicanos</div>
     <div class="input-wrap">
-      <span class="currency-tag">RD$</span>
-      <input
-        type="number"
-        id="dopInput"
-        inputmode="decimal"
-        placeholder="0"
-        autofocus
-      />
+      <span class="currency-tag" id="currencyFromTag">RD$</span>
+      <input type="number" id="currencyInput" inputmode="decimal" placeholder="0" />
     </div>
 
-    <div class="arrow-divider">
-      <svg width="20" height="24" viewBox="0 0 20 24" fill="none">
-        <line x1="10" y1="0" x2="10" y2="20" stroke="#f0f0f0" stroke-width="1.5"/>
-        <polyline points="4,14 10,20 16,14" stroke="#f0f0f0" stroke-width="1.5" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
-      </svg>
+    <div class="mid-row">
+      <button class="swap-btn currency" onclick="swapCurrency()" title="Intercambiar">
+        <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+          <path d="M4 2L4 14M4 2L1.5 4.5M4 2L6.5 4.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+          <path d="M12 14L12 2M12 14L9.5 11.5M12 14L14.5 11.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+      </button>
     </div>
 
-    <div class="label">Dólares americanos</div>
-    <div class="result-wrap">
-      <span class="result-amount empty" id="resultAmount">0.00</span>
-      <span class="result-currency">USD</span>
+    <div class="label" id="currencyToLabel">Dólares americanos</div>
+    <div class="result-wrap currency">
+      <span class="result-amount empty" id="currencyResult">0.00</span>
+      <span class="result-currency" id="currencyResultTag">USD</span>
     </div>
   </div>
 
+  <!-- TEMP PANEL -->
+  <div class="panel" id="panelTemp">
+    <div class="label" id="tempFromLabel">Fahrenheit</div>
+    <div class="input-wrap temp">
+      <span class="currency-tag" id="tempFromTag">°F</span>
+      <input type="number" id="tempInput" inputmode="decimal" placeholder="0" />
+    </div>
+
+    <div class="mid-row">
+      <button class="swap-btn temp" onclick="swapTemp()" title="Intercambiar">
+        <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+          <path d="M4 2L4 14M4 2L1.5 4.5M4 2L6.5 4.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+          <path d="M12 14L12 2M12 14L9.5 11.5M12 14L14.5 11.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+      </button>
+    </div>
+
+    <div class="label" id="tempToLabel">Celsius</div>
+    <div class="result-wrap temp">
+      <span class="result-amount empty" id="tempResult">0.0</span>
+      <span class="result-currency" id="tempResultTag">°C</span>
+    </div>
+  </div>
+
+  <!-- DISTANCE PANEL -->
+  <div class="panel" id="panelDist">
+    <div class="label" id="distFromLabel">Kilómetros</div>
+    <div class="input-wrap dist">
+      <span class="currency-tag" id="distFromTag">km</span>
+      <input type="number" id="distInput" inputmode="decimal" placeholder="0" />
+    </div>
+
+    <div class="mid-row">
+      <button class="swap-btn dist" onclick="swapDist()" title="Intercambiar">
+        <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+          <path d="M4 2L4 14M4 2L1.5 4.5M4 2L6.5 4.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+          <path d="M12 14L12 2M12 14L9.5 11.5M12 14L14.5 11.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+      </button>
+    </div>
+
+    <div class="label" id="distToLabel">Millas</div>
+    <div class="result-wrap dist">
+      <span class="result-amount empty" id="distResult">0.00</span>
+      <span class="result-currency" id="distResultTag">mi</span>
+    </div>
+  </div>
+
+  <!-- Footer -->
   <div class="footer">
     <button class="refresh-btn" id="refreshBtn" onclick="fetchRate()">
       <svg id="refreshIcon" width="14" height="14" viewBox="0 0 14 14" fill="none">
@@ -322,61 +385,171 @@
 </div>
 
 <script>
+  // ── State ──────────────────────────────────────────────
   let currentRate = null;
+  let currencyDir = 'dop2usd'; // or 'usd2dop'
+  let tempDir     = 'f2c';     // or 'c2f'
+  let distDir     = 'km2mi';   // or 'mi2km'
+  let activeTab   = 'currency';
 
-  const dopInput = document.getElementById('dopInput');
-  const resultAmount = document.getElementById('resultAmount');
-  const rateDisplay = document.getElementById('rateDisplay');
-  const rateBadge = document.getElementById('rateBadge');
-  const refreshIcon = document.getElementById('refreshIcon');
-  const timestamp = document.getElementById('timestamp');
-
-  dopInput.addEventListener('input', convert);
-
-  function convert() {
-    const dop = parseFloat(dopInput.value);
-    if (!currentRate || isNaN(dop) || dop === 0) {
-      resultAmount.textContent = '0.00';
-      resultAmount.classList.add('empty');
-      return;
-    }
-    const usd = dop / currentRate;
-    resultAmount.textContent = usd.toLocaleString('en-US', {
-      minimumFractionDigits: 2,
-      maximumFractionDigits: 2
+  // ── Tab switching ──────────────────────────────────────
+  function switchTab(tab) {
+    activeTab = tab;
+    ['currency','temp','dist'].forEach(t => {
+      document.getElementById('panel' + cap(t)).classList.remove('active');
+      document.getElementById('tab' + cap(t)).className = 'tab';
     });
-    resultAmount.classList.remove('empty');
-    resultAmount.classList.remove('fade-up');
-    void resultAmount.offsetWidth;
-    resultAmount.classList.add('fade-up');
+    document.getElementById('panel' + cap(tab)).classList.add('active');
+    document.getElementById('tab' + cap(tab)).className = 'tab active-' + tab;
   }
 
+  function cap(s) { return s.charAt(0).toUpperCase() + s.slice(1); }
+
+  // ── Currency ───────────────────────────────────────────
+  document.getElementById('currencyInput').addEventListener('input', convertCurrency);
+
+  function swapCurrency() {
+    currencyDir = currencyDir === 'dop2usd' ? 'usd2dop' : 'dop2usd';
+    document.getElementById('currencyInput').value = '';
+    document.getElementById('currencyResult').textContent = '0.00';
+    document.getElementById('currencyResult').classList.add('empty');
+    if (currencyDir === 'dop2usd') {
+      document.getElementById('currencyFromLabel').textContent = 'Pesos dominicanos';
+      document.getElementById('currencyFromTag').textContent = 'RD$';
+      document.getElementById('currencyToLabel').textContent = 'Dólares americanos';
+      document.getElementById('currencyResultTag').textContent = 'USD';
+      document.getElementById('rateLabel').textContent = 'RD$ por $1 USD';
+    } else {
+      document.getElementById('currencyFromLabel').textContent = 'Dólares americanos';
+      document.getElementById('currencyFromTag').textContent = 'USD';
+      document.getElementById('currencyToLabel').textContent = 'Pesos dominicanos';
+      document.getElementById('currencyResultTag').textContent = 'RD$';
+      document.getElementById('rateLabel').textContent = 'RD$ por $1 USD';
+    }
+    document.getElementById('currencyInput').focus();
+  }
+
+  function convertCurrency() {
+    const val = parseFloat(document.getElementById('currencyInput').value);
+    const el = document.getElementById('currencyResult');
+    if (!currentRate || isNaN(val) || val === 0) {
+      el.textContent = '0.00'; el.classList.add('empty'); return;
+    }
+    let result;
+    if (currencyDir === 'dop2usd') {
+      result = (val / currentRate).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+    } else {
+      result = (val * currentRate).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+    }
+    el.textContent = result;
+    el.classList.remove('empty');
+    animateFade(el);
+  }
+
+  // ── Temperature ────────────────────────────────────────
+  document.getElementById('tempInput').addEventListener('input', convertTemp);
+
+  function swapTemp() {
+    tempDir = tempDir === 'f2c' ? 'c2f' : 'f2c';
+    document.getElementById('tempInput').value = '';
+    document.getElementById('tempResult').textContent = '0.0';
+    document.getElementById('tempResult').classList.add('empty');
+    if (tempDir === 'f2c') {
+      document.getElementById('tempFromLabel').textContent = 'Fahrenheit';
+      document.getElementById('tempFromTag').textContent = '°F';
+      document.getElementById('tempToLabel').textContent = 'Celsius';
+      document.getElementById('tempResultTag').textContent = '°C';
+    } else {
+      document.getElementById('tempFromLabel').textContent = 'Celsius';
+      document.getElementById('tempFromTag').textContent = '°C';
+      document.getElementById('tempToLabel').textContent = 'Fahrenheit';
+      document.getElementById('tempResultTag').textContent = '°F';
+    }
+    document.getElementById('tempInput').focus();
+  }
+
+  function convertTemp() {
+    const val = parseFloat(document.getElementById('tempInput').value);
+    const el = document.getElementById('tempResult');
+    if (isNaN(val)) { el.textContent = '0.0'; el.classList.add('empty'); return; }
+    let result;
+    if (tempDir === 'f2c') {
+      result = ((val - 32) * 5 / 9).toFixed(1);
+    } else {
+      result = ((val * 9 / 5) + 32).toFixed(1);
+    }
+    el.textContent = result;
+    el.classList.remove('empty');
+    animateFade(el);
+  }
+
+  // ── Distance ───────────────────────────────────────────
+  document.getElementById('distInput').addEventListener('input', convertDist);
+
+  function swapDist() {
+    distDir = distDir === 'km2mi' ? 'mi2km' : 'km2mi';
+    document.getElementById('distInput').value = '';
+    document.getElementById('distResult').textContent = '0.00';
+    document.getElementById('distResult').classList.add('empty');
+    if (distDir === 'km2mi') {
+      document.getElementById('distFromLabel').textContent = 'Kilómetros';
+      document.getElementById('distFromTag').textContent = 'km';
+      document.getElementById('distToLabel').textContent = 'Millas';
+      document.getElementById('distResultTag').textContent = 'mi';
+    } else {
+      document.getElementById('distFromLabel').textContent = 'Millas';
+      document.getElementById('distFromTag').textContent = 'mi';
+      document.getElementById('distToLabel').textContent = 'Kilómetros';
+      document.getElementById('distResultTag').textContent = 'km';
+    }
+    document.getElementById('distInput').focus();
+  }
+
+  function convertDist() {
+    const val = parseFloat(document.getElementById('distInput').value);
+    const el = document.getElementById('distResult');
+    if (isNaN(val) || val === 0) { el.textContent = '0.00'; el.classList.add('empty'); return; }
+    let result;
+    if (distDir === 'km2mi') {
+      result = (val * 0.621371).toFixed(2);
+    } else {
+      result = (val / 0.621371).toFixed(2);
+    }
+    el.textContent = result;
+    el.classList.remove('empty');
+    animateFade(el);
+  }
+
+  // ── Helpers ────────────────────────────────────────────
+  function animateFade(el) {
+    el.classList.remove('fade-up');
+    void el.offsetWidth;
+    el.classList.add('fade-up');
+  }
+
+  // ── Rate fetch ─────────────────────────────────────────
   async function fetchRate() {
+    const rateBadge = document.getElementById('rateBadge');
+    const rateDisplay = document.getElementById('rateDisplay');
+    const refreshIcon = document.getElementById('refreshIcon');
+    const timestamp = document.getElementById('timestamp');
+
     rateBadge.className = 'rate-badge loading';
     rateDisplay.textContent = '...';
     rateDisplay.classList.add('pulsing');
     refreshIcon.classList.add('spinning');
 
     try {
-      // Primary: open.er-api.com (free, no key, CORS ok)
-      const res = await fetch('https://open.er-api.com/v6/latest/USD', {
-        cache: 'no-store'
-      });
+      const res = await fetch('https://open.er-api.com/v6/latest/USD', { cache: 'no-store' });
       const data = await res.json();
-
       if (data && data.rates && data.rates.DOP) {
         currentRate = data.rates.DOP;
         rateDisplay.textContent = currentRate.toFixed(4);
         rateBadge.className = 'rate-badge';
-        const now = new Date();
-        timestamp.textContent = `Última actualización: ${now.toLocaleTimeString('es-DO', { hour: '2-digit', minute: '2-digit' })}`;
-        convert();
-      } else {
-        throw new Error('No DOP rate in response');
-      }
-
-    } catch (err) {
-      // Fallback: exchangerate-api.com public endpoint
+        timestamp.textContent = `Actualizado: ${new Date().toLocaleTimeString('es-DO', { hour: '2-digit', minute: '2-digit' })}`;
+        convertCurrency();
+      } else throw new Error();
+    } catch {
       try {
         const res2 = await fetch('https://api.exchangerate-api.com/v4/latest/USD');
         const data2 = await res2.json();
@@ -384,13 +557,10 @@
           currentRate = data2.rates.DOP;
           rateDisplay.textContent = currentRate.toFixed(4);
           rateBadge.className = 'rate-badge';
-          const now = new Date();
-          timestamp.textContent = `Última actualización: ${now.toLocaleTimeString('es-DO', { hour: '2-digit', minute: '2-digit' })}`;
-          convert();
-        } else {
-          throw new Error('Fallback also failed');
-        }
-      } catch (err2) {
+          timestamp.textContent = `Actualizado: ${new Date().toLocaleTimeString('es-DO', { hour: '2-digit', minute: '2-digit' })}`;
+          convertCurrency();
+        } else throw new Error();
+      } catch {
         rateDisplay.textContent = 'Error';
         rateBadge.className = 'rate-badge error';
         timestamp.textContent = 'No se pudo obtener la tasa';
@@ -401,7 +571,6 @@
     }
   }
 
-  // Load on start
   fetchRate();
 </script>
 </body>
